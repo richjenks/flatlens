@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ws://localhost:*; media-src 'self' blob: data:; object-src 'none'; frame-src 'none';">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FlatLens</title>
+	<link rel="stylesheet" href="css/main.css">
+	<script type="module" src="js/main.js"></script>
+	<link rel="icon" href="assets/icon.ico"/>
+</head>
+<body>
+
+	<!-- Splash Screen -->
+	<div class="splash effect-grid">
+		<img class="splash-icon" src="assets/icon.png" alt="App Icon for FlatLens">
+		<h1 class="splash-title effect-gradient">FlatLens</h1>
+		<p class="splash-description">3D Video on Any Screen</p>
+		<button class="splash-open" aria-label="Start Watching">Start Watching</button>
+		<input class="splash-input" type="file" accept=".mp4,.webm,.mkv,.mov,.avi" aria-label="Upload a video file">
+		<p class="splash-help" role="button" tabindex="0" onclick="alert('FlatLens helps you watch 3D content on regular screens by correcting distortion.\n\nIt doesn\'t make 2D videos 3D nor make images pop out, but it does make 3D content appear more natural on 2D displays.');">What is FlatLens?</p>
+	</div>
+
+	<!-- Player Container -->
+	<main class="player">
+		<video class="player-video hidden" aria-hidden="true"></video>
+		<canvas class="player-canvas" aria-label="Video rendering canvas"></canvas>
+	</main>
+
+	<!-- Top Controls -->
+	<div class="controls controls-top" role="region" aria-label="Video Controls">
+
+		<!-- Open file -->
+		<button class="controls-open" aria-label="Open File"></button>
+
+		<!-- Current filename -->
+		<span class="controls-filename" aria-label="Open File"></span>
+
+		<!-- Layout -->
+		<div class="button-group controls-layout" role="group" aria-label="Layout Modes">
+			<button class="controls-layout-sbs" aria-label="Switch to Side-by-Side Layout"></button>
+			<button class="controls-layout-ou" aria-label="Switch to Over-Under Layout"></button>
+		</div>
+
+		<!-- Resolution -->
+		<div class="button-group controls-resolution" role="group" aria-label="Resolution Modes">
+			<button class="controls-resolution-half" aria-label="Switch to Half Resolution"></button>
+			<button class="controls-resolution-full" aria-label="Switch to Full Resolution"></button>
+		</div>
+
+		<!-- Projection -->
+		<div class="button-group controls-projection" role="group" aria-label="Projection Modes">
+			<button class="controls-projection-flat" aria-label="Switch to Flat Projection"></button>
+			<button class="controls-projection-vr180" aria-label="Switch to VR 180 Projection"></button>
+			<button class="controls-projection-vr360" aria-label="Switch to VR 360 Projection"></button>
+		</div>
+
+		<!-- View -->
+		<div class="button-group controls-view" role="group" aria-label="View Modes">
+			<button class="controls-view-watch" aria-label="Switch to Watch View"></button>
+			<button class="controls-view-original" aria-label="Switch to Original View"></button>
+			<button class="controls-view-anaglyph" aria-label="Switch to Anaglyph View"></button>
+		</div>
+	</div>
+
+	<!-- Bottom Controls -->
+	<div class="controls controls-bottom" role="region" aria-label="Player Controls">
+		<button class="controls-playback" aria-label="Toggle Playback"></button>
+		<button class="controls-volume" aria-label="Volume"></button>
+		<span class="controls-timecode" aria-live="polite">
+			<span class="controls-timecode-time">0:00</span>
+			<span class="effect-faded">
+				&nbsp;/
+				<span class="controls-timecode-duration">0:00</span>
+			</span>
+		</span>
+		<input class="controls-seekbar" type="range" min="0" value="0" step="0.01" aria-label="Seek through video">
+		<button class="controls-repeat" aria-label="Toggle Repeat"></button>
+		<button class="controls-fullscreen" aria-label="Toggle Fullscreen"></button>
+	</div>
+
+</body>
+</html>

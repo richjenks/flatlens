@@ -1,0 +1,70 @@
+/* Splash screen */
+
+.splash {
+	background-color: var(--obsidian);
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100;
+	user-select: none;
+	flex-direction: column;
+	transition: opacity .25s ease, visibility .25s ease;
+}
+
+.splash-icon {
+	width: 200px;
+	height: 200px;
+	margin-bottom: 1.6em;
+}
+
+.splash-title {
+	font-size: 5rem;
+	font-weight: 300;
+	margin: 0;
+	text-align: center;
+	letter-spacing: -0.02em;
+}
+
+.splash-description {
+	font-size: 1.5rem;
+	text-align: center;
+	margin: 0;
+	font-weight: 400;
+}
+
+.splash-open {
+	font-size: 1.8rem;
+	padding: .6em 1em;
+	border: 0.1em solid transparent;
+	margin-top: 2em;
+	border-radius: 1em;
+	color: white;
+	cursor: pointer;
+	user-select: none;
+	font-weight: 500;
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+	background-image:
+		linear-gradient(to right, var(--red3) 0%, var(--blue3) 66%, var(--cyan3) 100%),
+		linear-gradient(to right, var(--red1) 0%, var(--blue1) 66%, var(--cyan1) 100%);
+	text-shadow: 0 0 .2em rgba(0, 0, 0, 0.5);
+}
+
+.splash-open:hover {
+	background-image:
+		linear-gradient(to right, var(--red2) 0%, var(--blue2) 66%, var(--cyan2) 100%),
+		linear-gradient(to right, var(--red1) 0%, var(--blue1) 66%, var(--cyan1) 100%);
+}
+
+.splash-input {
+	display: none;
+}
+
+.splash-help {
+	color: var(--blue1);
+	text-decoration: underline;
+	cursor: pointer;
+	margin-top: 3.5em;
+}

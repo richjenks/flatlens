@@ -1,0 +1,29 @@
+/* Text and Visual Effects */
+
+.effect-grid {
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+	background-size: 40px 40px; /* grid spacing */
+}
+
+.effect-anaglyph {
+	color: rgba(255, 255, 255, 0.5);
+	text-shadow:
+		-.05em -.05em 0 var(--blue1),
+		.05em .05em 0 var(--red1);
+}
+
+.effect-gradient {
+	background: linear-gradient(to right, var(--red1) 0%, var(--blue1) 66%, var(--cyan1) 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+
+.effect-faded {
+	opacity: 0.5;
+}
+
+.rotate-0  { transform: rotate(0deg);  }
+.rotate-90 { transform: rotate(90deg); }

@@ -1,0 +1,27 @@
+/* Utility Classes for JS State Management */
+
+/* Hide an element */
+.hidden {
+	opacity: 0 !important;
+	visibility: hidden !important;
+}
+
+/* Add a slash over an icon */
+.slash {
+	position: relative;
+}
+.slash::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+
+	background:
+	linear-gradient(
+		to top right,
+		transparent 45%,
+		currentColor 45%,
+		currentColor 55%,
+		transparent 55%
+	);
+}

@@ -1,0 +1,22 @@
+/* CSS Custom Properties & Variables */
+
+:root {
+	--white: #fff;
+	--black: #000;
+	--gray: #ccc;
+	--obsidian: #151e27;
+	--overlay-dark: rgba(0, 0, 0, 0.7);
+	--overlay-light: rgba(255, 255, 255, 0.3);
+
+	--red1: #FF2336;
+	--red2: #A82A3C;
+	--red3: #551A22;
+	--blue1: #3498DB;
+	--blue2: #1B6698;
+	--blue3: #0F3A57;
+	--cyan1: #00FDFF;
+	--cyan2: #2A8A94;
+	--cyan3: #1A4A4D;
+
+	--seekbar-height: 18px;
+}
