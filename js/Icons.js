@@ -14,6 +14,10 @@ export const Icons = {
 		sbs: { icon: "fa-solid fa-pause rotate-0",  title: "Side-by-Side Layout (l)" },
 		ou:  { icon: "fa-solid fa-pause rotate-90", title: "Over-Under Layout (l)" },
 	},
+	eye: {
+		left:  { icon: "fa-regular fa-eye fa-flip-horizontal", title: "Left Eye (e)" },
+		right: { icon: "fa-regular fa-eye", title: "Right Eye (e)" },
+	},
 	resolution: {
 		half: {
 			sbs: { icon: "fa-solid fa-arrows-left-right",  title: "Double Size (s)" },

@@ -178,6 +178,7 @@ export class Render {
 
 	// Resize render targets and update camera from current state
 	resize(s) {
+		const state = this._normalizeProjectionForView(s);
 		if (!this.canvas || !this.video) {
 			return;
 		}
@@ -195,7 +196,7 @@ export class Render {
 			this._applyPanAndZoomClamps();
 		} else {
 			const canvasAspect = cw / ch;
-			const contentDims = Utils.contentDimensions(this.video, s);
+			const contentDims = Utils.contentDimensions(this.video, state);
 			const contentAspect = contentDims.width / contentDims.height;
 			const extents = Utils.orthoExtents(canvasAspect, contentAspect);
 			this.camera.left = extents.left;
@@ -220,32 +221,47 @@ export class Render {
 
 	// Apply view mode and refresh geometry/materials
 	setView(s) {
-		this._applyProjectionAndViewGeometry(s.projection);
-		this.updateMaterial(s);
-		this.resize(s);
+		const state = this._normalizeProjectionForView(s);
+		this._applyProjectionAndViewGeometry(state.projection);
+		this.updateMaterial(state);
+		this.resize(state);
 	}
 
 	// Apply layout and refresh materials
 	setLayout(s) {
-		this.updateMaterial(s);
-		this.resize(s);
+		const state = this._normalizeProjectionForView(s);
+		this.updateMaterial(state);
+		this.resize(state);
+	}
+
+	/**
+	 * Switch between left and right eyes
+	 */
+	setEye(s) {
+		const state = this._normalizeProjectionForView(s);
+		this.updateMaterial(state);
+		this.requestRender();
 	}
 
 	// Apply resolution and refresh materials
 	setResolution(s) {
-		this.updateMaterial(s);
-		this.resize(s);
+		const state = this._normalizeProjectionForView(s);
+		this.updateMaterial(state);
+		this.resize(state);
 	}
 
 	// Apply projection and refresh geometry/materials
 	setProjection(s) {
-		this._applyProjectionAndViewGeometry(s.projection);
-		this.updateMaterial(s);
-		this.resize(s);
+		const state = this._normalizeProjectionForView(s);
+		this._applyProjectionAndViewGeometry(state.projection);
+		this.updateMaterial(state);
+		this.resize(state);
 	}
 
 	// Recreate or update material for current state (minimal branching)
 	updateMaterial(s) {
+		const state = this._normalizeProjectionForView(s);
+		s = state;
 		if (!this.mesh) {
 			return;
 		}
@@ -300,16 +316,20 @@ export class Render {
 			u.u_v_fov_rad.value = Math.PI;
 		}
 		// Layout
-		if (u.uLayout)  {
-			u.uLayout.value  = (s.layout === "sbs" ? 0 : 1);
+		if (u.uLayout) {
+			u.uLayout.value = (s.layout === "sbs" ? 0 : 1);
 		}
 		// Resolution
-		if (u.uHalfRes)      {
-			u.uHalfRes.value      = (s.resolution === "half");
+		if (u.uHalfRes) {
+			u.uHalfRes.value = (s.resolution === "half");
 		}
 		// Watch flag (VR equirect)
 		if (u.uIsWatchView) {
 			u.uIsWatchView.value = (s.view === "watch");
+		}
+		// Mono eye selector
+		if (u.uLeftEye) {
+			u.uLeftEye.value = (s.eye !== "right");
 		}
 	}
 
@@ -388,6 +408,18 @@ export class Render {
 
 	// --- Internal Helpers ---
 
+	/**
+	 * Forces flat projection when Original view is active without mutating Store state.
+	 * @param {object} s - Current Store snapshot.
+	 * @returns {object} State object with projection adjusted for the active view.
+	 */
+	_normalizeProjectionForView(s) {
+		if (s.view === "original" && s.projection !== "flat") {
+			return { ...s, projection: "flat" };
+		}
+		return s;
+	}
+
 	_createOrthographicCamera() {
 		const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, SETTINGS.CAMERA_NEAR, SETTINGS.CAMERA_FAR);
 		cam.position.z = SETTINGS.CAMERA_DEFAULT_Z;
@@ -429,7 +461,7 @@ export class Render {
 	}
 
 	_createEquirectMaterial(s) {
-		const { layout, view, projection, resolution } = s;
+		const { layout, view, projection, resolution, eye } = s;
 		// Precompute radians to avoid per-call conversions
 		const hFovRad = (projection === "vr180") ? Math.PI : (Math.PI * 2);
 		const vFovRad = Math.PI;
@@ -442,6 +474,7 @@ export class Render {
 				uLayout: { value: layout === "sbs" ? 0 : 1 },
 				uIsWatchView: { value: view === "watch" },
 				uHalfRes: { value: resolution === "half" },
+				uLeftEye: { value: eye !== "right" },
 			},
 			vertexShader: Shaders.EQUIRECT_VERTEX_SHADER,
 			fragmentShader: Shaders.EQUIRECT_FRAGMENT_SHADER,
@@ -487,11 +520,12 @@ export class Render {
 
 	// Create flat-projection Watch material (samples a single eye)
 	_createWatchFlatMaterial(s) {
-		const { layout } = s;
+		const { layout, eye } = s;
 		return new THREE.ShaderMaterial({
 			uniforms: {
 				map: { value: this.videoTexture },
 				uLayout: { value: layout === "sbs" ? 0 : 1 },
+				uLeftEye: { value: eye !== "right" },
 			},
 			vertexShader: Shaders.FLAT_VERTEX_SHADER,
 			fragmentShader: Shaders.WATCH_FLAT_FRAGMENT_SHADER,

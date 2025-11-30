@@ -49,6 +49,7 @@ export const EQUIRECT_FRAGMENT_SHADER = `
 	uniform int uLayout; // 0 for SBS, 1 for OU
 	uniform bool uIsWatchView;
 	uniform bool uHalfRes; // true if resolution === 'half'
+	uniform bool uLeftEye;
 
 	varying vec3 v_viewDirection;
 
@@ -58,17 +59,18 @@ export const EQUIRECT_FRAGMENT_SHADER = `
 		vec2 uv = getEquirectUV(v_viewDirection, u_h_fov_rad, u_v_fov_rad);
 
 		if (uIsWatchView) {
+			bool leftEye = uLeftEye;
 			if (uLayout == 0) { // SBS
 				if (uHalfRes) {
-					uv.x = 0.25 + (uv.x - 0.5) * 0.25;
+					uv.x = leftEye ? 0.25 + (uv.x - 0.5) * 0.25 : 0.75 + (uv.x - 0.5) * 0.25;
 				} else {
-					uv.x *= 0.5;
+					uv.x = leftEye ? uv.x * 0.5 : uv.x * 0.5 + 0.5;
 				}
 			} else { // OU
 				if (uHalfRes) {
-					uv.y = 0.25 + (uv.y - 0.5) * 0.25;
+					uv.y = leftEye ? 0.25 + (uv.y - 0.5) * 0.25 : 0.75 + (uv.y - 0.5) * 0.25;
 				} else {
-					uv.y *= 0.5;
+					uv.y = leftEye ? uv.y * 0.5 : uv.y * 0.5 + 0.5;
 				}
 			}
 		}
@@ -192,14 +194,16 @@ export const ANAGLYPH_FLAT_FRAGMENT_SHADER = `
 export const WATCH_FLAT_FRAGMENT_SHADER = `
 	uniform sampler2D map;
 	uniform int uLayout; // 0 = SBS, 1 = OU
+	uniform bool uLeftEye;
 	varying vec2 vUv;
 
 	void main() {
 		vec2 uv = vUv;
+		bool leftEye = uLeftEye;
 		if (uLayout == 0) {
-			uv = vec2(vUv.x * 0.5, vUv.y);
+			uv = vec2(vUv.x * 0.5 + (leftEye ? 0.0 : 0.5), vUv.y);
 		} else {
-			uv = vec2(vUv.x, vUv.y * 0.5);
+			uv = vec2(vUv.x, vUv.y * 0.5 + (leftEye ? 0.0 : 0.5));
 		}
 		gl_FragColor = texture2D(map, uv);
 	}

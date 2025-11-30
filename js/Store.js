@@ -42,4 +42,8 @@ export const Store = new Repository({
 	// Resolution Setting
 	resolution: "half",
 	resolutions: ["half", "full"],
+
+	// Eye Setting
+	eye: "left",
+	eyes: ["left", "right"],
 });

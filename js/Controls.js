@@ -74,6 +74,10 @@ export class Controls {
 			half: document.querySelector(".controls-resolution-half"),
 			full: document.querySelector(".controls-resolution-full"),
 		};
+		this.ui.eye = {
+			left:  document.querySelector(".controls-eye-left"),
+			right: document.querySelector(".controls-eye-right"),
+		};
 	}
 
 	// Set icons for controls
@@ -100,6 +104,10 @@ export class Controls {
 		// Resolution modes
 		Utils.setIcon(this.ui.resolution.half,  Icons.resolution.half);
 		Utils.setIcon(this.ui.resolution.full,  Icons.resolution.full);
+
+		// Eye modes
+		Utils.setIcon(this.ui.eye.left,  Icons.eye.left);
+		Utils.setIcon(this.ui.eye.right, Icons.eye.right);
 	}
 
 	// Setup control events
@@ -188,6 +196,9 @@ export class Controls {
 		Object.keys(this.ui.resolution).forEach(resolution => {
 			this.ui.resolution[resolution].addEventListener("click", () => Store.set({ resolution }));
 		});
+		Object.keys(this.ui.eye).forEach(eye => {
+			this.ui.eye[eye].addEventListener("click", () => Store.set({ eye }));
+		});
 	}
 
 	// Setup store subscriptions
@@ -271,6 +282,13 @@ export class Controls {
 			});
 		});
 
+		// Eye modes
+		Store.subscribe("eye", s => {
+			Object.keys(this.ui.eye).forEach(v => {
+				this.ui.eye[v].classList.toggle("active", v === s.eye);
+			});
+		});
+
 		// View modes
 		Store.subscribe("view", s => {
 
@@ -279,11 +297,19 @@ export class Controls {
 				this.ui.view[i].classList.toggle("active", i === s.view);
 			});
 
-			// Enable/disable Layout & Resolution
-			["layout", "resolution"].forEach(group => {
-				Object.values(this.ui[group]).forEach(el => {
-					el.toggleAttribute("disabled", s.view === "original");
-				});
+			// Disable control groups for specific views
+			const disables = {
+				layout:     ["original"],
+				resolution: ["original"],
+				projection: ["original"],
+				eye:        ["original", "anaglyph"],
+			};
+			Object.entries(disables).forEach(([group, views]) => {
+				Object.values(this.ui[group]).forEach(el => (
+					views.includes(s.view)
+						? el.setAttribute("disabled", "")
+						: el.removeAttribute("disabled")
+				));
 			});
 		});
 	}
@@ -346,9 +372,18 @@ export class Controls {
 							Store.toggle("resolution", "resolutions");
 						}
 					},
-					KeyP:       () => Store.toggle("projection", "projections"),
-					KeyM:       () => Store.toggle("view", "views"),
+					KeyE:       () => {
+						if (!Object.values(this.ui.eye)[0].disabled) {
+							Store.toggle("eye", "eyes");
+						}
+					},
+					KeyP:       () => {
+						if (!Object.values(this.ui.projection)[0].disabled) {
+							Store.toggle("projection", "projections");
+						}
+					},
 
+					KeyM:       () => Store.toggle("view", "views"),
 					KeyV:       () => Store.toggle("volume"),
 					KeyR:       () => Store.toggle("repeat"),
 					KeyF:       () => Store.toggle("fullscreen"),

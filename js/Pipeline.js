@@ -28,6 +28,7 @@ export class Pipeline {
 		Store.subscribe("resolution", (s) => this.render.setResolution(s));
 		Store.subscribe("projection", (s) => this.render.setProjection(s));
 		Store.subscribe("view", (s) => this.render.setView(s));
+		Store.subscribe("eye", (s) => this.render.setEye(s));
 
 		// Video lifecycle
 		const video = Store.get("video");
