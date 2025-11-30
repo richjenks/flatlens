@@ -301,7 +301,6 @@ export class Controls {
 			const disables = {
 				layout:     ["original"],
 				resolution: ["original"],
-				projection: ["original"],
 				eye:        ["original", "anaglyph"],
 			};
 			Object.entries(disables).forEach(([group, views]) => {

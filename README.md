@@ -29,37 +29,39 @@ FlatLens runs video detections (looking at metadata, filename, and resolution) a
 - Side-by-Side (SBS): Left and right eyes are arranged next to each other.
 - Over-Under (OU): The two views are stacked vertically.
 
+**Eye**:
+- Left: Watch the Left/Top half (depending on whether Layout is SBS or OU — see above).
+- Right: Watch the Right/Bottom half.
+
 **Sizing**:
 - Double Size: Half Resolution content needs stretching to appear normal, either vertically or horizontally, depending on the Layout.
 - Normal Size: Full Resolution content can simply be displayed as-is, without stretching.
 
 **Projection**:
 - Flat: Normal flat projection, suitable for most videos.
-- 180º: _Half_ surround VR content with equirectangular correction — inside a half sphere.
-- 360º: _Full_ surround VR content with equirectangular correction — inside a full sphere.
+- 180º: _Half_ surround VR content with equirectangular correction — inside a _half_ sphere.
+- 360º: _Full_ surround VR content with equirectangular correction — inside a _full_ sphere.
 
 **View Modes**:
-
 - Mono Mode: Watch a single "eye" — probably what you want.
-- Source Mode: Watch the video as-is, with no eye cropping.
 - Anaglyph Mode: Render both eyes with an anaglyph filter for red-cyan glasses — more for fun than practicality.
+- Source Mode: Watch the video as-is, with no eye cropping.
 
 ## Notes
 
-**Layout & Resolution Settings**
-Resolution settings change when you swap Layouts. This is because in _SBS Half_, the video must be stretched _horizontally_ but in _OU Half_ the video must be stretched _vertically_. This will make sense if you compare an SBS Half video to an OU Half video in _Source Mode_.
+**Layout changes Resolution Settings**
+Resolution options change when you swap Layouts. This is because in _SBS Half_, the video must be stretched _horizontally_ but in _OU Half_ the video must be stretched _vertically_. This will make sense if you compare an SBS Half video to an OU Half video in _Source Mode_.
 
-**No Layout/Resolution in Source Mode**
-Layout and Resolution settings are disabled in Source Mode. The whole point of Source Mode is to view the video as-is, so Layout and Resolution are disabled and ignored in this mode
+**Layout, Resolution & Eye Settings**
+These settings are disabled automatically when inapplicable to the current view mode. Layout and Resolution are disabled in Source Mode because the video is rendered as-is so they'd have no effect. Similarly, the Eye setting is disabled in Source and Anaglyph modes because they render both eyes at once.
 
 **Anaglyph Glasses**
 The goal of FlatLens is to play 3D content without specialist hardware. The only exception to this is anaglyph glasses, which are optional (again, for fun rather than practicality) and cheaply available online. FlatLens uses the Dubois (least-squares) algorithm to minimise ghosting and preserve more natural colours when viewed with spectrally correct red–cyan glasses.
 
 **180º and 360º Panoramas**
-
 FlatLens was not designed with the intention of supporting panoramas (single-eye equirectangular content, a.k.a photo spheres) but its settings are independent enough that it does anyway. Change to _Source Mode_ and pick 180º or 360º Projection (as appropriate) and your panorama should display correctly.
 
-## Commands
+## Development
 
 ```sh
 npm run dev              # Launch local web development server (live reload)
@@ -81,4 +83,4 @@ npm run e:build-linux    # Build Linux executable
 
 1. Ensure ImageMagick is installed: `brew install imagemagick`
 2. Put a 1024x1024px PNG at `assets/src/icon.png`
-3. Run `npm run icons` to generate all required app icons
+3. Run `npm run icons` to generate all required app icons in the appropriate paths

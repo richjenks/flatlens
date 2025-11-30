@@ -178,7 +178,6 @@ export class Render {
 
 	// Resize render targets and update camera from current state
 	resize(s) {
-		const state = this._normalizeProjectionForView(s);
 		if (!this.canvas || !this.video) {
 			return;
 		}
@@ -196,7 +195,7 @@ export class Render {
 			this._applyPanAndZoomClamps();
 		} else {
 			const canvasAspect = cw / ch;
-			const contentDims = Utils.contentDimensions(this.video, state);
+			const contentDims = Utils.contentDimensions(this.video, s);
 			const contentAspect = contentDims.width / contentDims.height;
 			const extents = Utils.orthoExtents(canvasAspect, contentAspect);
 			this.camera.left = extents.left;
@@ -221,47 +220,40 @@ export class Render {
 
 	// Apply view mode and refresh geometry/materials
 	setView(s) {
-		const state = this._normalizeProjectionForView(s);
-		this._applyProjectionAndViewGeometry(state.projection);
-		this.updateMaterial(state);
-		this.resize(state);
+		this._applyProjectionAndViewGeometry(s.projection);
+		this.updateMaterial(s);
+		this.resize(s);
 	}
 
 	// Apply layout and refresh materials
 	setLayout(s) {
-		const state = this._normalizeProjectionForView(s);
-		this.updateMaterial(state);
-		this.resize(state);
+		this.updateMaterial(s);
+		this.resize(s);
 	}
 
 	/**
 	 * Switch between left and right eyes
 	 */
 	setEye(s) {
-		const state = this._normalizeProjectionForView(s);
-		this.updateMaterial(state);
+		this.updateMaterial(s);
 		this.requestRender();
 	}
 
 	// Apply resolution and refresh materials
 	setResolution(s) {
-		const state = this._normalizeProjectionForView(s);
-		this.updateMaterial(state);
-		this.resize(state);
+		this.updateMaterial(s);
+		this.resize(s);
 	}
 
 	// Apply projection and refresh geometry/materials
 	setProjection(s) {
-		const state = this._normalizeProjectionForView(s);
-		this._applyProjectionAndViewGeometry(state.projection);
-		this.updateMaterial(state);
-		this.resize(state);
+		this._applyProjectionAndViewGeometry(s.projection);
+		this.updateMaterial(s);
+		this.resize(s);
 	}
 
 	// Recreate or update material for current state (minimal branching)
 	updateMaterial(s) {
-		const state = this._normalizeProjectionForView(s);
-		s = state;
 		if (!this.mesh) {
 			return;
 		}
@@ -407,18 +399,6 @@ export class Render {
 	}
 
 	// --- Internal Helpers ---
-
-	/**
-	 * Forces flat projection when Original view is active without mutating Store state.
-	 * @param {object} s - Current Store snapshot.
-	 * @returns {object} State object with projection adjusted for the active view.
-	 */
-	_normalizeProjectionForView(s) {
-		if (s.view === "original" && s.projection !== "flat") {
-			return { ...s, projection: "flat" };
-		}
-		return s;
-	}
 
 	_createOrthographicCamera() {
 		const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, SETTINGS.CAMERA_NEAR, SETTINGS.CAMERA_FAR);
