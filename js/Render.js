@@ -18,6 +18,9 @@ const SETTINGS = {
 
 	DRAG_SENSITIVITY: 0.005, // Radians per pixel
 	ZOOM_SENSITIVITY: 0.02,
+
+	VR180_EDGE_FEATHER_U: 0.05,
+	VR180_EDGE_FEATHER_V: 0.05,
 };
 
 // Manages Three.js rendering, including scene, camera, and geometry.
@@ -323,6 +326,11 @@ export class Render {
 		if (u.uLeftEye) {
 			u.uLeftEye.value = (s.eye !== "right");
 		}
+		// VR edge feathering
+		if (u.uEdgeFeather) {
+			const feather = this._edgeFeatherForProjection(s.projection);
+			u.uEdgeFeather.value.set(feather.u, feather.v);
+		}
 	}
 
 	dispose() {
@@ -455,6 +463,7 @@ export class Render {
 				uIsWatchView: { value: view === "watch" },
 				uHalfRes: { value: resolution === "half" },
 				uLeftEye: { value: eye !== "right" },
+				uEdgeFeather: { value: new THREE.Vector2(0, 0) },
 			},
 			vertexShader: Shaders.EQUIRECT_VERTEX_SHADER,
 			fragmentShader: Shaders.EQUIRECT_FRAGMENT_SHADER,
@@ -475,6 +484,7 @@ export class Render {
 				uLayout: { value: layout === "sbs" ? 0 : 1 },
 				uSwapEyes: { value: 0 },
 				uHalfRes: { value: resolution === "half" },
+				uEdgeFeather: { value: new THREE.Vector2(0, 0) },
 			},
 			vertexShader: Shaders.EQUIRECT_VERTEX_SHADER,
 			fragmentShader: Shaders.ANAGLYPH_FRAGMENT_SHADER,
@@ -591,6 +601,21 @@ export class Render {
 		this.yaw = clamped.yaw;
 		this.pitch = clamped.pitch;
 		this.camera.rotation.set(this.pitch, this.yaw, 0, "YXZ");
+	}
+
+	/**
+	 * Return normalized UV edge feather values for a projection mode.
+	 * @param {string} projection Current projection identifier.
+	 * @returns {{u: number, v: number}} Fractional feather widths per axis.
+	 */
+	_edgeFeatherForProjection(projection) {
+		if (projection === "vr180") {
+			return {
+				u: SETTINGS.VR180_EDGE_FEATHER_U,
+				v: SETTINGS.VR180_EDGE_FEATHER_V,
+			};
+		}
+		return { u: 0, v: 0 };
 	}
 
 }

@@ -13,6 +13,21 @@ export const GLSL = {
 	}
 	`,
 
+	EDGE_FEATHER: `
+	float featherAxis(float coord, float feather) {
+		if (feather <= 0.0) {
+			return 1.0;
+		}
+		float nearEdge = smoothstep(0.0, feather, coord);
+		float farEdge = smoothstep(0.0, feather, 1.0 - coord);
+		return nearEdge * farEdge;
+	}
+
+	float edgeFade(vec2 uv, vec2 feather) {
+		return featherAxis(uv.x, feather.x) * featherAxis(uv.y, feather.y);
+	}
+	`,
+
 	// sRGB <-> Linear conversion helpers for accurate color math
 	COLORSPACE: `
 	vec3 sRGBToLinear(vec3 c) {
@@ -50,32 +65,37 @@ export const EQUIRECT_FRAGMENT_SHADER = `
 	uniform bool uIsWatchView;
 	uniform bool uHalfRes; // true if resolution === 'half'
 	uniform bool uLeftEye;
+	uniform vec2 uEdgeFeather;
 
 	varying vec3 v_viewDirection;
 
 	${GLSL.EQUIRECT_UV}
+	${GLSL.EDGE_FEATHER}
 
 	void main() {
 		vec2 uv = getEquirectUV(v_viewDirection, u_h_fov_rad, u_v_fov_rad);
+		float fade = edgeFade(uv, uEdgeFeather);
+		vec2 sampleUv = uv;
 
 		if (uIsWatchView) {
 			bool leftEye = uLeftEye;
 			if (uLayout == 0) { // SBS
 				if (uHalfRes) {
-					uv.x = leftEye ? 0.25 + (uv.x - 0.5) * 0.25 : 0.75 + (uv.x - 0.5) * 0.25;
+					sampleUv.x = leftEye ? 0.25 + (uv.x - 0.5) * 0.25 : 0.75 + (uv.x - 0.5) * 0.25;
 				} else {
-					uv.x = leftEye ? uv.x * 0.5 : uv.x * 0.5 + 0.5;
+					sampleUv.x = leftEye ? uv.x * 0.5 : uv.x * 0.5 + 0.5;
 				}
 			} else { // OU
 				if (uHalfRes) {
-					uv.y = leftEye ? 0.25 + (uv.y - 0.5) * 0.25 : 0.75 + (uv.y - 0.5) * 0.25;
+					sampleUv.y = leftEye ? 0.25 + (uv.y - 0.5) * 0.25 : 0.75 + (uv.y - 0.5) * 0.25;
 				} else {
-					uv.y = leftEye ? uv.y * 0.5 : uv.y * 0.5 + 0.5;
+					sampleUv.y = leftEye ? uv.y * 0.5 : uv.y * 0.5 + 0.5;
 				}
 			}
 		}
 
-		gl_FragColor = texture2D(map, uv);
+		vec4 tex = texture2D(map, sampleUv);
+		gl_FragColor = vec4(tex.rgb * fade, tex.a);
 	}
 `;
 
@@ -87,14 +107,17 @@ export const ANAGLYPH_FRAGMENT_SHADER = `
 	uniform int uLayout; // 0 = SBS, 1 = OU
 	uniform int uSwapEyes; // 0 = normal, 1 = swap
 	uniform bool uHalfRes; // true if resolution === 'half'
+	uniform vec2 uEdgeFeather;
 	varying vec3 v_viewDirection;
 
 	${GLSL.EQUIRECT_UV}
 
 	${GLSL.COLORSPACE}
+	${GLSL.EDGE_FEATHER}
 
 	void main() {
 		vec2 uv = getEquirectUV(v_viewDirection, u_h_fov_rad, u_v_fov_rad);
+		float fade = edgeFade(uv, uEdgeFeather);
 
 		vec2 uvL, uvR;
 		if (uLayout == 0) { // SBS
@@ -135,7 +158,7 @@ export const ANAGLYPH_FRAGMENT_SHADER = `
 		vec3 colorLinear = clamp(ML * leftRGB + MR * rightRGB, 0.0, 1.0);
 		vec3 colorSRGB = linearToSRGB(colorLinear);
 
-		gl_FragColor = vec4(colorSRGB, 1.0);
+		gl_FragColor = vec4(colorSRGB * fade, 1.0);
 	}
 `;
 
