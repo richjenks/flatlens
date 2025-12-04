@@ -22,7 +22,7 @@ This document provides project-specific context and strict behavioral protocols 
 ## App Architecture
 
 - `index.html`: Main HTML template and CSP. Hosts the `<video>` and `<canvas>`.
-- `/css/`: Component-structured styles (BEM naming).
+- `/css/`: Component-structured styles.
 - `/js/main.js`: Renderer entry point; wires DOM to Store; instantiates Controls, Pipeline, Player; sets up cleanup.
 - `/js/Store.js`: Global state (single source of truth) via a Repository pattern. Holds app objects, DOM refs, UI state, metadata, and enumerated settings (views, projections, layouts, resolutions).
 - `/js/Repository.js`: Minimal reactive store. Immediate-callback subscriptions; boolean toggles and enum cycling.
@@ -30,11 +30,12 @@ This document provides project-specific context and strict behavioral protocols 
 - `/js/Player.js`: Thin wrapper over `<video>`; reacts to Store changes; synchronizes time, duration, playback, loop, volume; stops on errors; triggers state updates.
 - `/js/Pipeline.js`: Orchestrates the player/rendering pipeline. Subscribes to Store, runs Detector on metadata, configures Render, manages render loop lifecycle and FPS estimation.
 - `/js/Detector.js`: Detects layout (SBS/OU), resolution (half/full), and projection (vr180/vr360/flat) via metadata, filename heuristics, and aspect-based inference. Strictly offline.
-- `/js/Render.js`: Three.js scene/cameras/materials; flat and VR equirect pipelines; Dubois anaglyph shaders; VR-only pan/zoom with safe clamps; handles resize and frame loop.
-- `/js/Shaders.js`: Centralized GLSL strings and helpers (equirect mapping, sRGB/linear conversions, Dubois matrices).
+- `/js/Render.js`: Three.js scene/cameras/materials; flat and VR equirect pipelines; simple red/cyan anaglyph shaders; VR-only pan/zoom with safe clamps; handles convergence, depth compression, resize, and frame loop.
+- `/js/Shaders.js`: Centralized GLSL strings/helpers (equirect mapping, VR edge-feather math, red/cyan anaglyph shaders with luminance-compensated leak filters, convergence, and depth compression heuristics).
 - `/js/Utils.js`: UI and math helpers (icons, timecode, debounce, modifiers, aspect/FOV math, yaw/pitch/FOV clamps).
 - `/js/Tooltips.js`: Tippy.js configuration; seekbar tooltip with live time; follows pointer.
 - `/js/Icons.js`: Centralized icon metadata for controls (Font Awesome).
+- `/js/Debug.js`: Builds the hidden debug panel (toggled with `/`), wires sliders to Store values, and triggers render updates for calibration changes.
 - `electron/main.js`: App window creation, dev/prod loading, app menu, global shortcuts, IPC handlers.
 - `electron/preload.js`: Exposes safe IPC APIs to the renderer (file-selected, version/meta).
 
@@ -73,7 +74,7 @@ flowchart TD
 		M --> O{Projection?}
 
 		%% Anaglyph View (Stereo)
-		L --> |Anaglyph| Q[Dubois Anaglyph Shader<br>on both eyes]
+		L --> |Anaglyph| Q[Red/Cyan Anaglyph Shader<br>on both eyes]
 		Q --> O
 
 		%% Projection Modes
@@ -85,7 +86,21 @@ flowchart TD
 - Clarifications:
 	- Detection Timing: Detector runs once on `loadedmetadata` regardless of view. “Original” view ignores layout/resolution for rendering, but detection still populates Store.
 	- Watch View: Monoscopic; samples the left eye only.
-	- Anaglyph View: Uses Dubois matrices with linearized sampling; implemented for both flat and VR equirect pipelines.
+	- Anaglyph View: Uses a simple red/cyan shader on both flat and VR equirect pipelines. VR anaglyph considers convergence (±0.01 of half-frame width) and depth compression heuristics controlled by debug sliders; OU content disables convergence but keeps depth compression along its vertical axis.
+
+## Debug Calibration Panel
+
+- Hidden behind `Store.debug` and toggled via `/`. Rendered as a `.debug` container appended near the top-left; use only for internal calibration and keep it absent for end users.
+- Sliders are defined in `js/Debug.js`, emit 0–1 values, mirror Store state, and trigger `Render.updateMaterial()` plus `requestRender()` so tuning has immediate visual feedback. Values display as percentages for readability (convergence shows ±50% around the midpoint).
+- **Filter Red/Green/Blue** (`antiR`, `antiG`, `antiB`):
+	- UI range 0–100% maps to 0–50% suppression internally (`value * 0.5`). Red applies to the left eye; green/blue apply to the right eye only.
+	- The shader multiplies each channel by `(1 - suppression)` and compensates brightness using channel-specific luminance gains to avoid darkening as leakage decreases.
+- **Green Balance** (`balance`):
+	- Redistributes up to 50% of the green contribution into the left eye to counter imperfect filter cutoffs. Remaining green stays in the right eye.
+- **Eye Convergence** (`convergence`):
+	- Slider midpoint (0.5) equals 0%; slider spans −50% to +50% around that midpoint. Shader clamps to ±0.01 of half-frame width for SBS and disables convergence for OU.
+- **Depth Compression** (`depthCompression`):
+	- Slider shows 0–100% but GLSL multiplies by 0.1. SBS halves compress horizontally (center pixels pushed farther, edges closer); OU halves compress vertically after the layout split so left/right halves remain aligned.
 
 ## Detection Model
 
@@ -165,6 +180,7 @@ flowchart TD
 	- Respect Offline First: do not add network calls or remote assets.
 - Renderer:
 	- If modifying detection or render paths, update AGENTS.md and README to match observable behavior.
+	- Extending or retuning debug calibration controls (leak filters, balance, convergence, depth compression) requires synchronized updates to `js/Debug.js`, `js/Shaders.js`, and this document.
 - IPC & Electron:
 	- When wiring OS file-open, prefer blob URLs (or update CSP explicitly if choosing `file://` sources).
 - Validation:
