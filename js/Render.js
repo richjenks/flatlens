@@ -337,7 +337,7 @@ export class Render {
 		const antiB = Math.max(0, Math.min(1, s.antiB ?? 0));
 		const balance = Math.max(0, Math.min(1, s.balance ?? 0));
 		const convergence = Math.max(0, Math.min(1, s.convergence ?? 0));
-		const depthCompression = Math.max(0, Math.min(1, s.depthCompression ?? 0));
+		const depth = Math.max(0, Math.min(1, s.depth ?? 0));
 		if (u.uAntiRed !== undefined) {
 			u.uAntiRed.value = antiR;
 		}
@@ -353,8 +353,8 @@ export class Render {
 		if (u.uConvergence !== undefined) {
 			u.uConvergence.value = convergence;
 		}
-		if (u.uDepthCompression !== undefined) {
-			u.uDepthCompression.value = depthCompression;
+		if (u.uDepth !== undefined) {
+			u.uDepth.value = depth;
 		}
 	}
 
@@ -515,7 +515,7 @@ export class Render {
 				uAntiBlue: { value: 0 },
 				uGreenBalance: { value: 0 },
 				uConvergence: { value: 0 },
-				uDepthCompression: { value: 0 },
+				uDepth: { value: 0 },
 			},
 			vertexShader: Shaders.EQUIRECT_VERTEX_SHADER,
 			fragmentShader: Shaders.ANAGLYPH_FRAGMENT_SHADER,
@@ -536,7 +536,7 @@ export class Render {
 				uAntiBlue: { value: 0 },
 				uGreenBalance: { value: 0 },
 				uConvergence: { value: 0 },
-				uDepthCompression: { value: 0 },
+				uDepth: { value: 0 },
 			},
 			vertexShader: Shaders.FLAT_VERTEX_SHADER,
 			fragmentShader: Shaders.ANAGLYPH_FLAT_FRAGMENT_SHADER,

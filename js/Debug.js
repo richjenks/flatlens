@@ -21,10 +21,10 @@ const controls = [
 	{ key: "antiB", label: "Filter Blue from Right Eye" },
 	{ key: "balance", label: "Green Balance" },
 	{ key: "convergence", label: "Eye Convergence" },
-	{ key: "depthCompression", label: "Depth Compression" },
+	{ key: "depth", label: "Depth Compression" },
 ];
 const controlKeys = controls.map(({ key }) => key);
-const percentageKeys = new Set(["antiR", "antiG", "antiB", "balance", "depthCompression"]);
+const percentageKeys = new Set(["antiR", "antiG", "antiB", "balance", "depth"]);
 const sliders = new Map();
 
 // Panel heading

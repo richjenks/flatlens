@@ -96,7 +96,7 @@ export const ANAGLYPH_FRAGMENT_SHADER = `
 	uniform float uAntiBlue;
 	uniform float uGreenBalance;
 	uniform float uConvergence;
-	uniform float uDepthCompression;
+	uniform float uDepth;
 	varying vec3 v_viewDirection;
 
 	${GLSL.EQUIRECT_UV}
@@ -119,7 +119,7 @@ export const ANAGLYPH_FRAGMENT_SHADER = `
 		vec2 uvL, uvR;
 		vec2 baseL, baseR;
 	float convergence = clamp(uConvergence, 0.0, 1.0);
-	float depthCompression = clamp(uDepthCompression, 0.0, 1.0) * 0.1;
+	float depthAmount = clamp(uDepth, 0.0, 1.0) * 0.1;
 	float shift = MAX_SHIFT * ((convergence - 0.5) * 2.0);
 	if (uLayout == 1) {
 		shift = 0.0;
@@ -141,8 +141,8 @@ export const ANAGLYPH_FRAGMENT_SHADER = `
 			float adjustedRight = clamp(baseR.x - shift, 0.0, 1.0);
 			float localLeft = (adjustedLeft - SBS_LEFT_CENTER) * 2.0;
 			float localRight = (adjustedRight - SBS_RIGHT_CENTER) * 2.0;
-			float depthScaleLeft = mix(1.0 + depthCompression, 1.0 - depthCompression, clamp(abs(localLeft), 0.0, 1.0));
-			float depthScaleRight = mix(1.0 - depthCompression, 1.0 + depthCompression, clamp(abs(localRight), 0.0, 1.0));
+			float depthScaleLeft = mix(1.0 + depthAmount, 1.0 - depthAmount, clamp(abs(localLeft), 0.0, 1.0));
+			float depthScaleRight = mix(1.0 - depthAmount, 1.0 + depthAmount, clamp(abs(localRight), 0.0, 1.0));
 			localLeft *= depthScaleLeft;
 			localRight *= depthScaleRight;
 			uvL = vec2(SBS_LEFT_CENTER + localLeft * 0.5, baseL.y);
@@ -159,8 +159,8 @@ export const ANAGLYPH_FRAGMENT_SHADER = `
 			float adjustedBottom = clamp(baseR.y - shift, 0.0, 1.0);
 			float localTop = (adjustedTop - OU_TOP_CENTER) * 2.0;
 			float localBottom = (adjustedBottom - OU_BOTTOM_CENTER) * 2.0;
-			float depthScaleTop = mix(1.0 + depthCompression, 1.0 - depthCompression, clamp(abs(localTop), 0.0, 1.0));
-			float depthScaleBottom = mix(1.0 - depthCompression, 1.0 + depthCompression, clamp(abs(localBottom), 0.0, 1.0));
+			float depthScaleTop = mix(1.0 + depthAmount, 1.0 - depthAmount, clamp(abs(localTop), 0.0, 1.0));
+			float depthScaleBottom = mix(1.0 - depthAmount, 1.0 + depthAmount, clamp(abs(localBottom), 0.0, 1.0));
 			localTop *= depthScaleTop;
 			localBottom *= depthScaleBottom;
 			uvL = vec2(baseL.x, OU_TOP_CENTER + localTop * 0.5);
@@ -217,7 +217,7 @@ export const ANAGLYPH_FLAT_FRAGMENT_SHADER = `
 	uniform float uAntiBlue;
 	uniform float uGreenBalance;
 	uniform float uConvergence;
-	uniform float uDepthCompression;
+	uniform float uDepth;
 	varying vec2 vUv;
 
 	void main() {
@@ -233,7 +233,7 @@ export const ANAGLYPH_FLAT_FRAGMENT_SHADER = `
 		vec2 baseL, baseR;
 		vec2 uvL, uvR;
 		float convergence = clamp(uConvergence, 0.0, 1.0);
-		float depthCompression = clamp(uDepthCompression, 0.0, 1.0) * 0.1;
+		float depthAmount = clamp(uDepth, 0.0, 1.0) * 0.1;
 		float shift = MAX_SHIFT * ((convergence - 0.5) * 2.0);
 
 		float centerLeft = (uLayout == 0) ? SBS_LEFT_CENTER : 0.5;
@@ -253,8 +253,8 @@ export const ANAGLYPH_FLAT_FRAGMENT_SHADER = `
 		float adjustedRight = clamp(baseR.x - shift, 0.0, 1.0);
 		float localLeft = (adjustedLeft - centerLeft) / halfSpanLeft;
 		float localRight = (adjustedRight - centerRight) / halfSpanRight;
-		float depthScaleLeft = mix(1.0 + depthCompression, 1.0 - depthCompression, clamp(abs(localLeft), 0.0, 1.0));
-		float depthScaleRight = mix(1.0 - depthCompression, 1.0 + depthCompression, clamp(abs(localRight), 0.0, 1.0));
+		float depthScaleLeft = mix(1.0 + depthAmount, 1.0 - depthAmount, clamp(abs(localLeft), 0.0, 1.0));
+		float depthScaleRight = mix(1.0 - depthAmount, 1.0 + depthAmount, clamp(abs(localRight), 0.0, 1.0));
 		localLeft *= depthScaleLeft;
 		localRight *= depthScaleRight;
 		uvL.x = centerLeft + localLeft * halfSpanLeft;

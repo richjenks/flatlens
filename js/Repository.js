@@ -1,12 +1,16 @@
 // Simple repository pattern allowing automatic callbacks on state changes.
 export class Repository {
 
-	// Store the state
-	state = null;
+	// Instance data
+	state       = {};
+	persists    = [];
+	subscribers = null;
 
-	// Set initial state
-	constructor(initialState = {}) {
-		this.state = { ...initialState };
+	// Set initial state and define localStorage persists
+	constructor(state = {}, persists = []) {
+		this.persists = Array.isArray(persists) ? persists : [];
+		const persisted = this._load();
+		this.state = { ...state, ...(persisted ?? {}) };
 		this.subscribers = new Set();
 	}
 
@@ -18,10 +22,11 @@ export class Repository {
 	// Update state
 	set(updates) {
 		this.state = { ...this.state, ...updates };
-		this.notify();
+		this._persist();
+		this._notify();
 	}
 
-	// Toggle a boolean value or cycle through predefined options
+	// Toggle a boolean value or cycle through option in a state array
 	toggle(key, optionsKey = null) {
 		// If no options key provided, treat as a boolean toggle
 		if (!optionsKey) {
@@ -118,8 +123,32 @@ export class Repository {
 		return () => this.subscribers.delete(wrappedCallback);
 	}
 
+	// Load state from localStorage
+	_load() {
+		const entries = {};
+		this.persists.forEach((key) => {
+			const raw = window.localStorage.getItem(key);
+			if (raw !== null) {
+				entries[key] = JSON.parse(raw);
+			}
+		});
+		return Object.keys(entries).length ? entries : null;
+	}
+
+	// Save state to localStorage
+	_persist() {
+		this.persists.forEach((key) => {
+			const value = this.state[key];
+			if (value === undefined || value === null) {
+				window.localStorage.removeItem(key);
+			} else {
+				window.localStorage.setItem(key, JSON.stringify(value));
+			}
+		});
+	}
+
 	// Notify subscribers of state changes
-	notify() {
+	_notify() {
 		this.subscribers.forEach(callback => callback(this.state));
 	}
 

@@ -1,7 +1,7 @@
 import { Repository } from "./Repository.js";
 
-// Centralized app-wide state management
-export const Store = new Repository({
+// Initial state
+const STATE = {
 
 	// App Objects
 	controls: null,
@@ -16,7 +16,7 @@ export const Store = new Repository({
 	splash:     true,  // Show splash screen on load
 	playback:   false, // Playback state (playing/paused)
 	volume:     true,  // Sound on/off
-	repeat:     false, // Restart vudei at end?
+	repeat:     false, // Restart video at end?
 	fullscreen: false, // Fullscreen state
 
 	// Video Metadata
@@ -48,11 +48,28 @@ export const Store = new Repository({
 	eyes: ["left", "right"],
 
 	// Debug Settings
-	debug: false,
-	antiR: 0,
-	antiG: 0,
-	antiB: 0,
-	balance: 0,
+	debug:       false,
+	antiR:       0,
+	antiG:       0,
+	antiB:       0,
+	balance:     0,
 	convergence: 0.5,
-	depthCompression: 0,
-});
+	depth:       0,
+}
+
+// localStorage syncs
+const PERSISTS = [
+	"volume",
+	"repeat",
+	"eye",
+	"debug",
+	"antiR",
+	"antiG",
+	"antiB",
+	"balance",
+	"convergence",
+	"depth",
+]
+
+// Initialise the store
+export const Store = new Repository(STATE, PERSISTS);
