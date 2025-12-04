@@ -3,7 +3,7 @@ import { Repository } from "./Repository.js";
 // Centralized app-wide state management
 export const Store = new Repository({
 
-	// App objects
+	// App Objects
 	controls: null,
 	pipeline: null,
 	player:   null,
@@ -29,7 +29,7 @@ export const Store = new Repository({
 
 	// View Setting
 	view: "watch",
-	views: ["watch", "original", "anaglyph"],
+	views: ["watch", "anaglyph", "original"],
 
 	// Projection Setting
 	projection: "flat",
@@ -46,4 +46,13 @@ export const Store = new Repository({
 	// Eye Setting
 	eye: "left",
 	eyes: ["left", "right"],
+
+	// Debug Settings
+	debug: false,
+	antiR: 0,
+	antiG: 0,
+	antiB: 0,
+	balance: 0,
+	convergence: 0.5,
+	depthCompression: 0,
 });

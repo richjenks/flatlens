@@ -3,6 +3,7 @@ import { Controls } from "./Controls.js";
 import { Pipeline } from "./Pipeline.js";
 import { Player   } from "./Player.js";
 import "./Tooltips.js";
+import "./Debug.js";
 
 // Configure DOM elements
 Store.set({

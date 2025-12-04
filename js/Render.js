@@ -331,6 +331,31 @@ export class Render {
 			const feather = this._edgeFeatherForProjection(s.projection);
 			u.uEdgeFeather.value.set(feather.u, feather.v);
 		}
+		// Anaglyph tuning
+		const antiR = Math.max(0, Math.min(1, s.antiR ?? 0));
+		const antiG = Math.max(0, Math.min(1, s.antiG ?? 0));
+		const antiB = Math.max(0, Math.min(1, s.antiB ?? 0));
+		const balance = Math.max(0, Math.min(1, s.balance ?? 0));
+		const convergence = Math.max(0, Math.min(1, s.convergence ?? 0));
+		const depthCompression = Math.max(0, Math.min(1, s.depthCompression ?? 0));
+		if (u.uAntiRed !== undefined) {
+			u.uAntiRed.value = antiR;
+		}
+		if (u.uAntiGreen !== undefined) {
+			u.uAntiGreen.value = antiG;
+		}
+		if (u.uAntiBlue !== undefined) {
+			u.uAntiBlue.value = antiB;
+		}
+		if (u.uGreenBalance !== undefined) {
+			u.uGreenBalance.value = balance;
+		}
+		if (u.uConvergence !== undefined) {
+			u.uConvergence.value = convergence;
+		}
+		if (u.uDepthCompression !== undefined) {
+			u.uDepthCompression.value = depthCompression;
+		}
 	}
 
 	dispose() {
@@ -485,6 +510,12 @@ export class Render {
 				uSwapEyes: { value: 0 },
 				uHalfRes: { value: resolution === "half" },
 				uEdgeFeather: { value: new THREE.Vector2(0, 0) },
+				uAntiRed: { value: 0 },
+				uAntiGreen: { value: 0 },
+				uAntiBlue: { value: 0 },
+				uGreenBalance: { value: 0 },
+				uConvergence: { value: 0 },
+				uDepthCompression: { value: 0 },
 			},
 			vertexShader: Shaders.EQUIRECT_VERTEX_SHADER,
 			fragmentShader: Shaders.ANAGLYPH_FRAGMENT_SHADER,
@@ -500,6 +531,12 @@ export class Render {
 				map: { value: this.videoTexture },
 				uLayout: { value: layout === "sbs" ? 0 : 1 },
 				uSwapEyes: { value: 0 },
+				uAntiRed: { value: 0 },
+				uAntiGreen: { value: 0 },
+				uAntiBlue: { value: 0 },
+				uGreenBalance: { value: 0 },
+				uConvergence: { value: 0 },
+				uDepthCompression: { value: 0 },
 			},
 			vertexShader: Shaders.FLAT_VERTEX_SHADER,
 			fragmentShader: Shaders.ANAGLYPH_FLAT_FRAGMENT_SHADER,

@@ -1,0 +1,70 @@
+.debug {
+	position: fixed;
+	left: 1rem;
+	bottom: 4.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	padding: 1.6rem;
+	color: var(--white);
+	font-size: 0.9rem;
+	background: var(--overlay-dark);
+	pointer-events: auto;
+	z-index: 30;
+	border-radius: 25px;
+}
+
+.debug-title {
+	margin: 0;
+	font-size: 0.75rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: bold;
+	opacity: 0.5;
+}
+
+.debug-control {
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.debug-label {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 0.75rem;
+	font-size: 0.85rem;
+}
+
+.debug-value {
+	font-variant-numeric: tabular-nums;
+	font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+.debug-slider {
+	appearance: none;
+	width: 16rem;
+	max-width: 60vw;
+	height: 0.4rem;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.25);
+	outline: none;
+	cursor: pointer;
+	transition: background 0.2s ease;
+}
+
+.debug-slider::-moz-range-thumb,
+.debug-slider::-webkit-slider-thumb {
+	appearance: none;
+	width: 1rem;
+	height: 1rem;
+	border-radius: 50%;
+	background-color: var(--blue1);
+	box-shadow: 0 0 0 2px rgba(17, 19, 28, 0.4);
+}
+
+.debug-slider:focus-visible {
+	outline: 2px solid var(--blue1);
+	outline-offset: 3px;
+}
